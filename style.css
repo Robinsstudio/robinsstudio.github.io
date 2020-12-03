@@ -1,0 +1,68 @@
+:root {
+	--font-size-input: 30px;
+	--font-size-button: 20px;
+	--font-size-password: 14px;
+	--width-input: 300px;
+	--height-input: 50px;
+	--text-color: white;
+	--background-color: #b0c6e5;
+	--background-color-focus: #739cd6;
+	--margin-field: 30px;
+	--small-margin: 5px;
+	--eye-size: 24px;
+}
+
+* {
+	font-family: 'Segoe UI', 'Arial';
+	outline: none;
+}
+
+body {
+	display: flex;
+	justify-content: center;
+}
+
+input:not([type=checkbox]), button {
+	font-size: var(--font-size-input);
+	width: var(--width-input);
+	height: var(--height-input);
+	color: var(--text-color);
+	background-color: var(--background-color);
+	text-align: center;
+	border: none;
+}
+
+button {
+	font-size: var(--font-size-button);
+}
+
+input:not([type=checkbox]):focus, button:active {
+	background-color: var(--background-color-focus);
+}
+
+.field {
+	position: relative;
+	margin: var(--margin-field);
+}
+
+.label {
+	margin-bottom: var(--small-margin);
+}
+
+.eye {
+	position: absolute;
+	bottom: calc(var(--height-input) / 2 - var(--eye-size) / 2);
+	right: var(--small-margin);
+	width: var(--eye-size);
+	height: var(--eye-size);
+	background: url(eye.svg);
+	cursor: pointer;
+}
+
+.eye.crossed {
+	background: url(eye_crossed.svg);
+}
+
+#generatedPassword {
+	font-size: var(--font-size-password);
+}
