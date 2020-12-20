@@ -38,12 +38,6 @@ Array.from(eyes).forEach(eye => {
 	});
 });
 
-function Algorithm(algorithmCallback) {
-	return function(text, size, specialChars, progressCallback) {
-		return algorithmCallback(text, size, specialChars, progressCallback);
-	}
-}
-
 const sha512 = function() {
 	const charSet64 = [
 		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
@@ -69,8 +63,8 @@ const sha512 = function() {
 		});
 	}
 
-}();
+};
 
 const algorithms = {
-	'SHA-512': Algorithm(sha512)
+	'SHA-512': sha512()
 };
