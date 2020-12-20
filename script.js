@@ -20,7 +20,7 @@ const eyes = document.querySelectorAll('.eye');
 const updateProgressFn = e => console.log(e);
 
 document.addEventListener('input', () => {
-	algorithms['SHA-512'](
+	algorithms['bcrypt'](
 		siteField.value + passwordField.value,
 		parseInt(numberCharsField.value),
 		specialCharsField.checked,
@@ -65,6 +65,17 @@ const sha512 = function() {
 
 };
 
+const bcrypt = function() {
+	const DUMMY_SALT = 'RobinRobinRobinRobinRe';
+	return function(text, size, _, progressCallback) {
+		return new Promise(resolve => {
+			const resolvePromise = (error, hash) => resolve({ error, hash });
+			window['dcodeIO'].bcrypt.hash(text, `$2a$15$${DUMMY_SALT}`, resolvePromise, progressCallback)
+		}).then(({ hash }) => hash.slice(-size));
+	};
+};
+
 const algorithms = {
-	'SHA-512': sha512()
+	'SHA-512': sha512(),
+	'bcrypt': bcrypt()
 };
