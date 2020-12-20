@@ -76,18 +76,22 @@ input:not([type=checkbox]):focus, button:active {
 	background-color: var(--background-color-grey);
 	width: var(--width-input);
 	height: var(--height-input);
-	text-align: center;
 }
 
 .progress-bar-text {
-	line-height: var(--height-input);
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
+	z-index: 1;
 }
 
 .progress-bar-overlay {
 	position: absolute;
 	top: 0;
+	width: 0;
 	color: var(--text-color);
 	background-color: var(--background-color-green);
-	width: 0;
 	height: var(--height-input);
 }
