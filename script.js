@@ -9,42 +9,47 @@ const progressBarText = document.querySelector('.progress-bar-text');
 const progressBarOverlay = document.querySelector('.progress-bar-overlay');
 
 function updateProgress(progress) {
-	const percentage = Math.round(progress * 100);
+	const percentage = progress * 100;
 
-	progressBarText.textContent = `Génération du mot de passe... (${percentage} %)`;
+	progressBarText.textContent = `Génération du mot de passe... (${Math.round(percentage)} %)`;
 	progressBarOverlay.style.width = `${percentage}%`;
 }
 
-function copyToClipboard(value) {
-	const hiddenElement = document.createElement('input');
-	hiddenElement.style.background = 'transparent';
-	hiddenElement.value = value;
-
-	document.body.appendChild(hiddenElement);
-	hiddenElement.select();
-	document.execCommand('copy');
-	document.body.removeChild(hiddenElement);
+function updateMessage(message) {
+	progressBarText.textContent = message;
 }
 
-function runAndCopy() {
+function copyToClipboard(value) {
+	const fakeElement = document.createElement('input');
+	fakeElement.value = value;
+
+	document.body.appendChild(fakeElement);
+	fakeElement.select();
+	document.execCommand('copy');
+	document.body.removeChild(fakeElement);
+
+	updateMessage('Mot de passe copié');
+}
+
+function generatePassword() {
 	algorithms['bcrypt'](
 		siteField.value + passwordField.value,
 		parseInt(numberCharsField.value),
 		specialCharsField.checked,
 		updateProgress
 	).then(password => {
-		generatedPasswordField.value = password
-		copyToClipboard(password);
+		generatedPasswordField.value = password;
+		updateMessage('Mot de passe généré');
 	});
 }
 
 document.addEventListener('keydown', event => {
 	if (event.key === 'Enter') {
-		runAndCopy();
+		generatePassword();
 	}
 });
 
-copyButton.addEventListener('click', runAndCopy);
+copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
 
 Array.from(eyes).forEach(eye => {
 	eye.addEventListener('click', () => {
