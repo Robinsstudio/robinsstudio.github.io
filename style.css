@@ -7,6 +7,8 @@
 	--text-color: white;
 	--background-color: #b0c6e5;
 	--background-color-focus: #739cd6;
+	--background-color-grey: #cccccc;
+	--background-color-green: #b0e5bb;
 	--margin-field: 30px;
 	--small-margin: 5px;
 	--eye-size: 24px;
@@ -65,4 +67,27 @@ input:not([type=checkbox]):focus, button:active {
 
 #generatedPassword {
 	font-size: var(--font-size-password);
+}
+
+.progress-bar {
+	position: relative;
+	margin: calc(var(--margin-field) * 2) var(--margin-field);
+	color: var(--text-color);
+	background-color: var(--background-color-grey);
+	width: var(--width-input);
+	height: var(--height-input);
+	text-align: center;
+}
+
+.progress-bar-text {
+	line-height: var(--height-input);
+}
+
+.progress-bar-overlay {
+	position: absolute;
+	top: 0;
+	color: var(--text-color);
+	background-color: var(--background-color-green);
+	width: 0;
+	height: var(--height-input);
 }
