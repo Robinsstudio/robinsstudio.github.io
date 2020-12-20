@@ -1,3 +1,13 @@
+const siteField = document.querySelector('#site');
+const passwordField = document.querySelector('#password');
+const numberCharsField = document.querySelector('#numberChars');
+const specialCharsField = document.querySelector('#specialChars');
+const generatedPasswordField = document.querySelector('#generatedPassword');
+const copyButton = document.querySelector('#copy');
+const eyes = document.querySelectorAll('.eye');
+
+const updateProgressFn = e => console.log(e);
+
 function copyToClipboard(value) {
 	const hiddenElement = document.createElement('input');
 	hiddenElement.style.background = 'transparent';
@@ -9,26 +19,25 @@ function copyToClipboard(value) {
 	document.body.removeChild(hiddenElement);
 }
 
-const siteField = document.querySelector('#site');
-const passwordField = document.querySelector('#password');
-const numberCharsField = document.querySelector('#numberChars');
-const specialCharsField = document.querySelector('#specialChars');
-const generatedPasswordField = document.querySelector('#generatedPassword');
-const copyButton = document.querySelector('#copy');
-const eyes = document.querySelectorAll('.eye');
-
-const updateProgressFn = e => console.log(e);
-
-document.addEventListener('input', () => {
+function runAndCopy() {
 	algorithms['bcrypt'](
 		siteField.value + passwordField.value,
 		parseInt(numberCharsField.value),
 		specialCharsField.checked,
 		updateProgressFn
-	).then(password => generatedPasswordField.value = password);
+	).then(password => {
+		generatedPasswordField.value = password
+		copyToClipboard(password);
+	});
+}
+
+document.addEventListener('keydown', event => {
+	if (event.key === 'Enter') {
+		runAndCopy();
+	}
 });
 
-copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
+copyButton.addEventListener('click', runAndCopy);
 
 Array.from(eyes).forEach(eye => {
 	eye.addEventListener('click', () => {
