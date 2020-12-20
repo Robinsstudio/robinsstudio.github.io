@@ -5,8 +5,15 @@ const specialCharsField = document.querySelector('#specialChars');
 const generatedPasswordField = document.querySelector('#generatedPassword');
 const copyButton = document.querySelector('#copy');
 const eyes = document.querySelectorAll('.eye');
+const progressBarText = document.querySelector('.progress-bar-text');
+const progressBarOverlay = document.querySelector('.progress-bar-overlay');
 
-const updateProgressFn = e => console.log(e);
+function updateProgress(progress) {
+	const percentage = Math.round(progress * 100);
+
+	progressBarText.textContent = `Génération du mot de passe... (${percentage} %)`;
+	progressBarOverlay.style.width = `${percentage}%`;
+}
 
 function copyToClipboard(value) {
 	const hiddenElement = document.createElement('input');
@@ -24,7 +31,7 @@ function runAndCopy() {
 		siteField.value + passwordField.value,
 		parseInt(numberCharsField.value),
 		specialCharsField.checked,
-		updateProgressFn
+		updateProgress
 	).then(password => {
 		generatedPasswordField.value = password
 		copyToClipboard(password);
