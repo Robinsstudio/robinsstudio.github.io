@@ -2,6 +2,8 @@ const siteField = document.querySelector('#site');
 const passwordField = document.querySelector('#password');
 const numberCharsField = document.querySelector('#numberChars');
 const specialCharsField = document.querySelector('#specialChars');
+const algorithmField = document.querySelector('#algorithm input');
+const algorithmValue = document.querySelector('#algorithm .value');
 const generatedPasswordField = document.querySelector('#generatedPassword');
 const copyButton = document.querySelector('#copy');
 const eyes = document.querySelectorAll('.eye');
@@ -32,7 +34,7 @@ function copyToClipboard(value) {
 }
 
 function generatePassword() {
-	algorithms['bcrypt'](
+	algorithms[algorithmField.value].run(
 		siteField.value + passwordField.value,
 		parseInt(numberCharsField.value),
 		specialCharsField.checked,
@@ -47,6 +49,11 @@ document.addEventListener('keydown', event => {
 	if (event.key === 'Enter') {
 		generatePassword();
 	}
+});
+
+algorithmField.addEventListener('input', event => {
+	algorithmValue.textContent = algorithms[event.target.value].name;
+
 });
 
 copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
@@ -96,7 +103,10 @@ const bcrypt = function() {
 	};
 };
 
-const algorithms = {
-	'SHA-512': sha512(),
-	'bcrypt': bcrypt()
-};
+const algorithms = [{
+	name: 'SHA-512',
+	run: sha512()
+}, {
+	name: 'bcrypt',
+	run: bcrypt()
+}];
