@@ -52,8 +52,10 @@ document.addEventListener('keydown', event => {
 });
 
 algorithmField.addEventListener('input', event => {
-	algorithmValue.textContent = algorithms[event.target.value].name;
-
+	const { value } = event.target;
+	if (value) {
+		algorithmValue.textContent = algorithms[value].name;
+	}
 });
 
 copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
@@ -86,7 +88,7 @@ const sha512 = function() {
 		const chars = specialChars ? charSet128 : charSet64;
 		const divider = specialChars ? 2 : 4;
 
-		return crypto.subtle.digest('SHA-512', new TextEncoder().encode(text)).then(buffer => {
+		return window.crypto.subtle.digest('SHA-512', new TextEncoder().encode(text)).then(buffer => {
 			return Array.from(new Uint8Array(buffer)).map(value => chars[Math.floor(value / divider)]).join('').substring(0, size);
 		});
 	}
@@ -98,7 +100,7 @@ const bcrypt = function() {
 	return function(text, size, _, progressCallback) {
 		return new Promise(resolve => {
 			const resolvePromise = (error, hash) => resolve({ error, hash });
-			window['dcodeIO'].bcrypt.hash(text, `$2a$15$${DUMMY_SALT}`, resolvePromise, progressCallback)
+			window.dcodeIO.bcrypt.hash(text, `$2a$15$${DUMMY_SALT}`, resolvePromise, progressCallback)
 		}).then(({ hash }) => hash.slice(-size));
 	};
 };
