@@ -65,6 +65,18 @@ input:not([type=checkbox]):focus, button:active {
 	background: url(eye_crossed.svg);
 }
 
+#algorithm {
+	position: relative;
+}
+
+#algorithm input {
+	color: transparent;
+}
+
+#algorithm .value {
+	font-size: var(--font-size-input);
+}
+
 #generatedPassword {
 	font-size: var(--font-size-password);
 }
@@ -78,11 +90,12 @@ input:not([type=checkbox]):focus, button:active {
 	height: var(--height-input);
 }
 
-.progress-bar-text {
+.progress-bar-text, #algorithm .value {
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	color: var(--text-color);
 	white-space: nowrap;
 	z-index: 1;
 }
@@ -91,7 +104,6 @@ input:not([type=checkbox]):focus, button:active {
 	position: absolute;
 	top: 0;
 	width: 0;
-	color: var(--text-color);
 	background-color: var(--background-color-green);
 	height: var(--height-input);
 }
