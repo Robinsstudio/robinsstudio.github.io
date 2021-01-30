@@ -10,6 +10,8 @@ const eyes = document.querySelectorAll('.eye');
 const progressBarText = document.querySelector('.progress-bar-text');
 const progressBarOverlay = document.querySelector('.progress-bar-overlay');
 
+let password = '';
+
 function updateProgress(progress) {
 	const percentage = progress * 100;
 
@@ -36,13 +38,22 @@ function copyToClipboard(value) {
 function generatePassword() {
 	algorithms[algorithmField.value].run(
 		siteField.value + passwordField.value,
-		parseInt(numberCharsField.value),
 		specialCharsField.checked,
 		updateProgress
 	).then(password => {
-		generatedPasswordField.value = password;
+		updatePassword(password);
 		updateMessage('Mot de passe généré');
 	});
+}
+
+function updatePassword(pass) {
+	password = pass;
+	updateSize();
+}
+
+function updateSize() {
+	const size = parseInt(numberCharsField.value);
+	generatedPasswordField.value = password.slice(0, size);
 }
 
 document.addEventListener('keydown', event => {
@@ -57,6 +68,8 @@ algorithmField.addEventListener('input', event => {
 		algorithmValue.textContent = algorithms[value].name;
 	}
 });
+
+numberCharsField.addEventListener('input', () => updateSize());
 
 copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
 
@@ -84,12 +97,12 @@ const sha512 = function() {
 		'~', '£', '€', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 	];
 
-	return function(text, size, specialChars) {
+	return function(text, specialChars) {
 		const chars = specialChars ? charSet128 : charSet64;
 		const divider = specialChars ? 2 : 4;
 
 		return window.crypto.subtle.digest('SHA-512', new TextEncoder().encode(text)).then(buffer => {
-			return Array.from(new Uint8Array(buffer)).map(value => chars[Math.floor(value / divider)]).join('').substring(0, size);
+			return Array.from(new Uint8Array(buffer)).map(value => chars[Math.floor(value / divider)]).join('');
 		});
 	}
 
@@ -97,11 +110,13 @@ const sha512 = function() {
 
 const bcrypt = function() {
 	const DUMMY_SALT = 'RobinRobinRobinRobinRe';
-	return function(text, size, _, progressCallback) {
+	const prefix = `$2a$15$${DUMMY_SALT}`;
+
+	return function(text, _, progressCallback) {
 		return new Promise(resolve => {
 			const resolvePromise = (error, hash) => resolve({ error, hash });
-			window.dcodeIO.bcrypt.hash(text, `$2a$15$${DUMMY_SALT}`, resolvePromise, progressCallback)
-		}).then(({ hash }) => hash.slice(-size));
+			window.dcodeIO.bcrypt.hash(text, prefix, resolvePromise, progressCallback)
+		}).then(({ hash }) => hash.slice(prefix.length));
 	};
 };
 
