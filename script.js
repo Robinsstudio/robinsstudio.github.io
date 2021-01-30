@@ -35,16 +35,26 @@ function copyToClipboard(value) {
 	updateMessage('Mot de passe copié');
 }
 
-function generatePassword() {
-	algorithms[algorithmField.value].run(
-		siteField.value + passwordField.value,
-		specialCharsField.checked,
-		updateProgress
-	).then(password => {
-		updatePassword(password);
-		updateMessage('Mot de passe généré');
-	});
-}
+const generatePassword = (function() {
+	let computing = false;
+
+	return function() {
+		if (!computing) {
+			computing = true;
+
+			algorithms[algorithmField.value].run(
+				siteField.value + passwordField.value,
+				specialCharsField.checked,
+				updateProgress
+			).then(password => {
+				updatePassword(password);
+				updateMessage('Mot de passe généré');
+
+				computing = false;
+			});
+		}
+	}
+})();
 
 function updatePassword(pass) {
 	password = pass;
