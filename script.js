@@ -10,6 +10,9 @@ const eyes = document.querySelectorAll('.eye');
 const progressBarText = document.querySelector('.progress-bar-text');
 const progressBarOverlay = document.querySelector('.progress-bar-overlay');
 
+const SITE = 'SITE';
+const NUMBER_CHARS = 'NUMBER_CHARS';
+
 let password = '';
 
 function updateProgress(progress) {
@@ -42,6 +45,9 @@ const generatePassword = (function() {
 		if (!computing) {
 			computing = true;
 
+			setLocalStorage(SITE, siteField.value);
+			setLocalStorage(NUMBER_CHARS, numberCharsField.value);
+
 			algorithms[algorithmField.value].run(
 				siteField.value + passwordField.value,
 				specialCharsField.checked,
@@ -65,6 +71,17 @@ function updateSize() {
 	const size = parseInt(numberCharsField.value);
 	generatedPasswordField.value = password.slice(0, size);
 }
+
+function getLocalStorage(itemName, defaultValue) {
+	return window.localStorage.getItem(itemName) || defaultValue;
+}
+
+function setLocalStorage(itemName, value) {
+	return window.localStorage.setItem(itemName, value);
+}
+
+siteField.value = getLocalStorage(SITE, '');
+numberCharsField.value = parseInt(getLocalStorage(NUMBER_CHARS, '30'));
 
 document.addEventListener('keydown', event => {
 	if (event.key === 'Enter') {
