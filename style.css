@@ -7,6 +7,8 @@
 	--text-color: white;
 	--background-color: #b0c6e5;
 	--background-color-focus: #739cd6;
+	--background-color-grey: #cccccc;
+	--background-color-green: #b0e5bb;
 	--margin-field: 30px;
 	--small-margin: 5px;
 	--eye-size: 24px;
@@ -63,6 +65,45 @@ input:not([type=checkbox]):focus, button:active {
 	background: url(eye_crossed.svg);
 }
 
+#algorithm {
+	position: relative;
+}
+
+#algorithm input {
+	color: transparent;
+}
+
+#algorithm .value {
+	font-size: var(--font-size-input);
+}
+
 #generatedPassword {
 	font-size: var(--font-size-password);
+}
+
+.progress-bar {
+	position: relative;
+	margin: calc(var(--margin-field) * 2) var(--margin-field);
+	color: var(--text-color);
+	background-color: var(--background-color-grey);
+	width: var(--width-input);
+	height: var(--height-input);
+}
+
+.progress-bar-text, #algorithm .value {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: var(--text-color);
+	white-space: nowrap;
+	z-index: 1;
+}
+
+.progress-bar-overlay {
+	position: absolute;
+	top: 0;
+	width: 0;
+	background-color: var(--background-color-green);
+	height: var(--height-input);
 }

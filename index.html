@@ -21,11 +21,18 @@
 		</div>
 		<div class="field">
 			<div class="label">Nombre de caractères</div>
-			<input id="numberChars" type="number" spellcheck="false" min="1" max="64" value="30">
+			<input id="numberChars" type="number" min="1" max="31" value="30">
 		</div>
 		<div class="field">
 			<input id="specialChars" type="checkbox">
 			<label for="specialChars">Caractères spéciaux</label>
+		</div>
+		<div class="field">
+			<div class="label">Algorithme</div>
+			<div id="algorithm">
+				<div class="value">bcrypt</div>
+				<input type="number" min="0" max="1" value="1">
+			</div>
 		</div>
 		<div class="field">
 			<div class="label">Mot de passe généré</div>
@@ -35,7 +42,12 @@
 		<div class="field">
 			<button id="copy">Copier</button>
 		</div>
+		<div class="progress-bar">
+			<span class="progress-bar-text">Aucun mot de passe généré</span>
+			<div class="progress-bar-overlay"></div>
+		</div>
 	</div>
+	<script src="bcrypt.js"></script>
 	<script src="script.js"></script>
 </body>
 </html>
