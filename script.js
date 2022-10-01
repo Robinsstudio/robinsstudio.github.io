@@ -6,7 +6,7 @@ const algorithmField = document.querySelector('#algorithm input');
 const algorithmValue = document.querySelector('#algorithm .value');
 const generatedPasswordField = document.querySelector('#generatedPassword');
 const copyButton = document.querySelector('#copy');
-const eyes = document.querySelectorAll('.eye');
+const eyes = Array.from(document.querySelectorAll('.eye'));
 const progressBarText = document.querySelector('.progress-bar-text');
 const progressBarOverlay = document.querySelector('.progress-bar-overlay');
 
@@ -47,6 +47,7 @@ const generatePassword = (function() {
 
 			setLocalStorage(SITE, siteField.value);
 			setLocalStorage(NUMBER_CHARS, numberCharsField.value);
+			eyes.forEach(eye => togglePasswordVisibility(eye, { visible: false }));
 
 			algorithms[algorithmField.value].run(
 				siteField.value + passwordField.value,
@@ -61,6 +62,17 @@ const generatePassword = (function() {
 		}
 	}
 })();
+
+function togglePasswordVisibility(eye, visibility) {
+	const crossed = eye.classList.contains('crossed');
+	const visible = visibility ? visibility.visible : !crossed;
+
+	if (visible !== crossed) {
+		const input = eye.parentElement.querySelector('input');
+		input.type = crossed ? 'password' : 'text';
+		eye.classList.toggle('crossed');
+	}
+}
 
 function updatePassword(pass) {
 	password = pass;
@@ -100,13 +112,7 @@ numberCharsField.addEventListener('input', () => updateSize());
 
 copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
 
-Array.from(eyes).forEach(eye => {
-	eye.addEventListener('click', () => {
-		const input = eye.parentElement.querySelector('input');
-		input.type = eye.classList.contains('crossed') ? 'password' : 'text';
-		eye.classList.toggle('crossed');
-	});
-});
+eyes.forEach(eye => eye.addEventListener('click', () => togglePasswordVisibility(eye)));
 
 const sha512 = function() {
 	const charSet64 = [
