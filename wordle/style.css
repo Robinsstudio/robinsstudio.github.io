@@ -1,0 +1,58 @@
+:root {
+	--font-size: 32px;
+	--font-weight: 700;
+	--side-size: 58px;
+	--border-size: 2px;
+	--margin: 5px;
+	--title-margin: 30px;
+	--absent-color: #3a3a3c;
+	--present-color: #b59f3b;
+	--correct-color: #538d4e;
+	--background-color: #121213;
+}
+
+body {
+	font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+	background-color: var(--background-color);
+}
+
+.title {
+	font-size: var(--font-size);
+	margin-bottom: var(--title-margin);
+	text-align: center;
+	color: white;
+}
+
+.row {
+	font-size: 0;
+	margin-bottom: var(--margin);
+	text-align: center;
+}
+
+.cell {
+	display: inline-block;
+	font-size: var(--font-size);
+	font-weight: var(--font-weight);
+	width: var(--side-size);
+	height: var(--side-size);
+	line-height: var(--side-size);
+	border: var(--border-size) solid var(--absent-color);
+	margin-right: var(--margin);
+	color: white;
+	text-transform: uppercase;
+}
+
+.cell.absent {
+	background-color: var(--absent-color);
+	border-color: var(--absent-color);
+}
+
+.cell.present {
+	background-color: var(--present-color);
+	border-color: var(--present-color);
+}
+
+.cell.correct {
+	background-color: var(--correct-color);
+	border-color: var(--correct-color);
+}
