@@ -40,11 +40,13 @@ body {
 	margin-right: var(--margin);
 	color: white;
 	text-transform: uppercase;
+	user-select: none;
 }
 
 .cell.absent {
 	background-color: var(--absent-color);
 	border-color: var(--absent-color);
+	animation: rotation .5s;
 }
 
 .cell.present {
@@ -55,4 +57,13 @@ body {
 .cell.correct {
 	background-color: var(--correct-color);
 	border-color: var(--correct-color);
+}
+
+@keyframes rotation {
+	from, to {
+		transform: rotate3d(1, 0, 0, 0deg);
+	}
+	50% {
+		transform: rotate3d(1, 0, 0, 90deg);
+	}
 }
