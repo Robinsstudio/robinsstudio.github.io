@@ -20,6 +20,10 @@ function initialize() {
             cell.dataset.row = i;
             cell.dataset.col = j;
 
+            const span = document.createElement('span');
+            span.classList.add('letter');
+
+            cell.appendChild(span);
             row.appendChild(cell);
         }
 
@@ -27,7 +31,7 @@ function initialize() {
     }
 
     grid.addEventListener('click', event => {
-        const cell = event.target;
+        const cell = event.target.classList.contains('letter') ? event.target.parentElement : event.target;
 
         if (!cell.classList.contains('cell')) {
             return;
@@ -54,8 +58,12 @@ function showNextWord() {
 
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        child.classList.add('absent');
-        child.textContent = word[i];
+
+        child.children[0].textContent = word[i];
+
+        setTimeout(() => {
+            child.classList.add('revealed', 'absent');
+        }, i * 250);
     }
 }
 

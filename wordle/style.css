@@ -46,7 +46,6 @@ body {
 .cell.absent {
 	background-color: var(--absent-color);
 	border-color: var(--absent-color);
-	animation: rotation .5s;
 }
 
 .cell.present {
@@ -59,11 +58,36 @@ body {
 	border-color: var(--correct-color);
 }
 
+.cell .letter {
+	opacity: 0;
+}
+
+.cell.revealed {
+	animation: rotation .5s;
+}
+
+.cell.revealed .letter {
+	animation: opacity .5s;
+	opacity: 100%;
+}
+
 @keyframes rotation {
 	from, to {
 		transform: rotate3d(1, 0, 0, 0deg);
 	}
 	50% {
 		transform: rotate3d(1, 0, 0, 90deg);
+	}
+}
+
+@keyframes opacity {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0;
+	}
+	51% {
+		opacity: 100%;
 	}
 }
