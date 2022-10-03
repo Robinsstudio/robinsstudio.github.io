@@ -1,11 +1,11 @@
 const ROWS = 6;
 const COLUMNS = 5;
-const OPENER = 'slate';
 
 const CELL_STATES = ['absent', 'present', 'correct'];
 
 const cells = Array.from({ length: ROWS }, () => Array.from({ length: COLUMNS }, () => 0));
-let currentRow = 0;
+let currentRow = -1;
+let currentWord = 'slate';
 
 function initialize() {
     const grid = document.querySelector('.grid');
@@ -48,18 +48,24 @@ function initialize() {
         cell.classList.remove(state);
         cell.classList.add(newState);
     });
+
+    document.addEventListener('keydown', ({ key }) => {
+        if (key === 'Enter') {
+            showNextWord();
+        }
+    });
 }
 
 function showNextWord() {
-    const word = OPENER;
+    currentWord = currentRow === -1 ? currentWord : getNextWord(currentWord, parseInt(cells[currentRow].join(''), 3));
 
-    const row = document.querySelectorAll('.row')[currentRow++];
+    const row = document.querySelectorAll('.row')[++currentRow];
     const children = row.children;
 
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
 
-        child.children[0].textContent = word[i];
+        child.children[0].textContent = currentWord[i];
 
         setTimeout(() => {
             child.classList.add('revealed', 'absent');
