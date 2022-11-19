@@ -39,11 +39,11 @@ function getNextWord(guess, feedback) {
     dictionary = getAllPossibilities(guess)[feedback];
 
     let nextWord = '';
-    let nextWordEntropy = -Infinity;
+    let nextWordEntropy = 0;
 
     for (let word of dictionary) {
         const possibilities = Object.values(getAllPossibilities(word));
-        const entropy = possibilities.reduce((acc, words) => acc + (words.length / possibilities.length) * (Math.log2(possibilities.length / words.length)), 0);
+        const entropy = possibilities.reduce((acc, words) => acc + (words.length / dictionary.length) * (Math.log2(dictionary.length / words.length)), 0);
 
         if (entropy > nextWordEntropy) {
             nextWord = word;
