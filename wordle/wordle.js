@@ -38,18 +38,18 @@ function getAllPossibilities(guess) {
 function getNextWord(guess, feedback) {
     dictionary = getAllPossibilities(guess)[feedback];
 
-    let nextWord = '';
-    let nextWordEntropy = 0;
+    let maxEntropy = -1;
+    let maxEntropyWord = '';
 
     for (let word of dictionary) {
         const possibilities = Object.values(getAllPossibilities(word));
         const entropy = possibilities.reduce((acc, words) => acc + (words.length / dictionary.length) * (Math.log2(dictionary.length / words.length)), 0);
 
-        if (entropy > nextWordEntropy) {
-            nextWord = word;
-            nextWordEntropy = entropy;
+        if (entropy > maxEntropy) {
+            maxEntropy = entropy;
+            maxEntropyWord = word;
         }
     }
 
-    return nextWord;
+    return maxEntropyWord;
 }
