@@ -148,7 +148,7 @@ const bcrypt = function() {
 	return function(text, _, progressCallback) {
 		return new Promise(resolve => {
 			const resolvePromise = (error, hash) => resolve({ error, hash });
-			window.dcodeIO.bcrypt.hash(text, prefix, resolvePromise, progressCallback)
+			window.bcrypt.hash(text, prefix, resolvePromise, progressCallback)
 		}).then(({ hash }) => hash.slice(prefix.length));
 	};
 };
