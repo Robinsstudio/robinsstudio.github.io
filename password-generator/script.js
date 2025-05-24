@@ -1,9 +1,6 @@
 const siteField = document.querySelector('#site');
 const passwordField = document.querySelector('#password');
 const numberCharsField = document.querySelector('#numberChars');
-const specialCharsField = document.querySelector('#specialChars');
-const algorithmField = document.querySelector('#algorithm input');
-const algorithmValue = document.querySelector('#algorithm .value');
 const generatedPasswordField = document.querySelector('#generatedPassword');
 const copyButton = document.querySelector('#copy');
 const eyes = Array.from(document.querySelectorAll('.eye'));
@@ -49,9 +46,8 @@ const generatePassword = (function() {
 			setLocalStorage(NUMBER_CHARS, numberCharsField.value);
 			eyes.forEach(eye => togglePasswordVisibility(eye, { visible: false }));
 
-			algorithms[algorithmField.value].run(
+			algorithms['bcrypt'].run(
 				siteField.value + passwordField.value,
-				specialCharsField.checked,
 				updateProgress
 			).then(password => {
 				updatePassword(password);
@@ -101,51 +97,17 @@ document.addEventListener('keydown', event => {
 	}
 });
 
-algorithmField.addEventListener('input', event => {
-	const { value } = event.target;
-	if (value) {
-		algorithmValue.textContent = algorithms[value].name;
-	}
-});
-
 numberCharsField.addEventListener('input', () => updateSize());
 
 copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
 
 eyes.forEach(eye => eye.addEventListener('click', () => togglePasswordVisibility(eye)));
 
-const sha512 = function() {
-	const charSet64 = [
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_'
-	];
-
-	const charSet128 = [
-		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-		'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-		'À', 'Â', 'Ä', 'Æ', 'Ç', 'É', 'È', 'Ê', 'Ë', 'Î', 'Ï', 'Ô', 'Œ', 'Ù', 'Û', 'Ü', 'à', 'â', 'ä', 'æ', 'ç',
-		'é', 'è', 'ê', 'ë', 'î', 'ï', 'ô', 'œ', 'ù', 'û', 'ü', ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')',
-		'*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', ']', '^', '_', '`', '{', '|', '}',
-		'~', '£', '€', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
-	];
-
-	return function(text, specialChars) {
-		const chars = specialChars ? charSet128 : charSet64;
-		const divider = specialChars ? 2 : 4;
-
-		return window.crypto.subtle.digest('SHA-512', new TextEncoder().encode(text)).then(buffer => {
-			return Array.from(new Uint8Array(buffer)).map(value => chars[Math.floor(value / divider)]).join('');
-		});
-	}
-
-};
-
 const bcrypt = function() {
 	const DUMMY_SALT = 'RobinRobinRobinRobinRe';
 	const prefix = `$2a$15$${DUMMY_SALT}`;
 
-	return function(text, _, progressCallback) {
+	return function(text, progressCallback) {
 		return new Promise(resolve => {
 			const resolvePromise = (error, hash) => resolve({ error, hash });
 			window.bcrypt.hash(text, prefix, resolvePromise, progressCallback)
@@ -153,10 +115,8 @@ const bcrypt = function() {
 	};
 };
 
-const algorithms = [{
-	name: 'SHA-512',
-	run: sha512()
-}, {
-	name: 'bcrypt',
-	run: bcrypt()
-}];
+const algorithms = {
+	'bcrypt': {
+		run: bcrypt()
+	}
+};

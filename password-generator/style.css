@@ -66,18 +66,6 @@ input:not([type=checkbox]):focus, button:active {
 	background: url(eye_crossed.svg);
 }
 
-#algorithm {
-	position: relative;
-}
-
-#algorithm input {
-	color: transparent;
-}
-
-#algorithm .value {
-	font-size: var(--font-size-input);
-}
-
 #generatedPassword {
 	font-family: var(--font-family-password);
 	font-size: var(--font-size-password);
@@ -92,7 +80,7 @@ input:not([type=checkbox]):focus, button:active {
 	height: var(--height-input);
 }
 
-.progress-bar-text, #algorithm .value {
+.progress-bar-text {
 	position: absolute;
 	top: 50%;
 	left: 50%;
