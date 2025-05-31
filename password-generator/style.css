@@ -55,7 +55,7 @@ input:not([type=checkbox]):focus, button:active {
 .eye {
 	position: absolute;
 	bottom: calc(var(--height-input) / 2 - var(--eye-size) / 2);
-	right: var(--small-margin);
+	left: calc(var(--width-input) - var(--eye-size) - var(--small-margin));
 	width: var(--eye-size);
 	height: var(--eye-size);
 	background: url(eye.svg);

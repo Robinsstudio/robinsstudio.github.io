@@ -2,6 +2,7 @@ const siteField = document.querySelector('#site');
 const passwordField = document.querySelector('#password');
 const numberCharsField = document.querySelector('#numberChars');
 const generatedPasswordField = document.querySelector('#generatedPassword');
+const checksumField = document.querySelector('#checksum');
 const copyButton = document.querySelector('#copy');
 const eyes = Array.from(document.querySelectorAll('.eye'));
 const progressBarText = document.querySelector('.progress-bar-text');
@@ -46,7 +47,7 @@ const generatePassword = (function() {
 			setLocalStorage(NUMBER_CHARS, numberCharsField.value);
 			eyes.forEach(eye => togglePasswordVisibility(eye, { visible: false }));
 
-			algorithms['bcrypt'].run(
+			algorithms['bcrypt_15'].run(
 				siteField.value + passwordField.value,
 				updateProgress
 			).then(password => {
@@ -80,6 +81,14 @@ function updateSize() {
 	generatedPasswordField.value = password.slice(0, size);
 }
 
+function updateChecksum() {
+	algorithms['bcrypt_04'].run(passwordField.value).then(hash => {
+		checksumField.value = hash[0];
+		checksumField.style.color = getForegroundColor(hash[1]);
+		checksumField.style.backgroundColor = getBackgroundColor(hash[1]);
+	});
+}
+
 function getLocalStorage(itemName, defaultValue) {
 	return window.localStorage.getItem(itemName) || defaultValue;
 }
@@ -99,13 +108,15 @@ document.addEventListener('keydown', event => {
 
 numberCharsField.addEventListener('input', () => updateSize());
 
+passwordField.addEventListener('input', () => updateChecksum());
+
 copyButton.addEventListener('click', () => copyToClipboard(generatedPasswordField.value));
 
 eyes.forEach(eye => eye.addEventListener('click', () => togglePasswordVisibility(eye)));
 
-const bcrypt = function() {
+const bcrypt = function(cost) {
 	const DUMMY_SALT = 'RobinRobinRobinRobinRe';
-	const prefix = `$2a$15$${DUMMY_SALT}`;
+	const prefix = `$2a$${cost}$${DUMMY_SALT}`;
 
 	return function(text, progressCallback) {
 		return new Promise(resolve => {
@@ -116,7 +127,32 @@ const bcrypt = function() {
 };
 
 const algorithms = {
-	'bcrypt': {
-		run: bcrypt()
+	'bcrypt_04': {
+		run: bcrypt('04')
+	},
+	'bcrypt_15': {
+		run: bcrypt('15')
 	}
 };
+
+const { getForegroundColor, getBackgroundColor } = (function() {
+	function buildCharRange(initial, offset, length) {
+		return Array.from({ length }, (_,i) => [String.fromCharCode(initial.charCodeAt() + i), offset + i]);
+	}
+
+	const base64 = Object.fromEntries([...buildCharRange('A', 0, 26), ...buildCharRange('a', 26, 26), ...buildCharRange('0', 52, 10), ['.', 62], ['/', 63]]);
+
+	const nbColors = 8;
+
+	const foregroundColors = Array.from({ length: nbColors }, (_,i) => `oklch(0.7 0.15 ${360 * i / nbColors})`);
+	const backgroundColors = Array.from({ length: nbColors }, (_,i) => `oklch(0.4 0.1 ${360 * i / nbColors})`);
+
+	return {
+		getForegroundColor: function(data) {
+			return foregroundColors[base64[data] & 7];
+		},
+		getBackgroundColor: function(data) {
+			return backgroundColors[base64[data] >> 3];
+		},
+	};
+})();
