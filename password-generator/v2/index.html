@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Generator</title>
+<script src="https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2-bundled.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #1a1a1f;
+    --surface2: #22222a;
+    --border: rgba(255,255,255,0.08);
+    --border-focus: rgba(255,255,255,0.22);
+    --text: #f0ede8;
+    --muted: #888580;
+    --accent: #7c6af7;
+    --accent-dim: rgba(124,106,247,0.15);
+    --accent-glow: rgba(124,106,247,0.35);
+    --success: #3dba7e;
+    --success-dim: rgba(61,186,126,0.12);
+    --danger: #e05c5c;
+    --mono: 'Courier New', Courier, monospace;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-glow);
+    border-radius: 14px;
+    margin-bottom: 1rem;
+  }
+
+  .logo svg { width: 24px; height: 24px; }
+
+  h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .field {
+    margin-bottom: 1.25rem;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .toggle-vis {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s;
+  }
+
+  .toggle-vis:hover { color: var(--text); }
+
+  .eye-icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="number"]:focus {
+    border-color: var(--border-focus);
+  }
+
+  input[type="password"] {
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .generate-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    letter-spacing: 0.01em;
+    margin-top: 0.25rem;
+  }
+
+  .generate-btn:hover { opacity: 0.88; }
+  .generate-btn:active { transform: scale(0.985); }
+  .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .progress-wrap {
+    display: none;
+    margin-top: 1rem;
+  }
+
+  .progress-wrap.visible { display: block; }
+
+  .progress-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.04em;
+  }
+
+  .progress-bar-bg {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  @keyframes pulse-bar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .progress-bar-fill.indeterminate {
+    width: 60%;
+    animation: indeterminate 1.4s ease-in-out infinite;
+    transform-origin: left;
+  }
+
+  @keyframes indeterminate {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(260%); }
+  }
+
+  .output-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .output-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .output-value {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    word-break: break-all;
+    line-height: 1.6;
+    min-height: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .output-value.masked {
+    font-family: var(--mono);
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+
+  .output-value.empty {
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.85rem;
+    letter-spacing: 0;
+    font-style: italic;
+  }
+
+  .output-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+    gap: 0.75rem;
+  }
+
+  .checksum-area {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .checksum-value {
+    font-family: var(--mono);
+    color: var(--success);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .copy-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: var(--border-focus); }
+
+  .copy-btn.copied {
+    color: var(--success);
+    border-color: rgba(61,186,126,0.35);
+    background: var(--success-dim);
+  }
+
+  .error-msg {
+    display: none;
+    background: rgba(224,92,92,0.1);
+    border: 1px solid rgba(224,92,92,0.25);
+    border-radius: var(--radius);
+    color: var(--danger);
+    font-size: 0.82rem;
+    padding: 0.65rem 0.85rem;
+    margin-top: 0.75rem;
+  }
+
+  .error-msg.visible { display: block; }
+
+  .params-hint {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.25rem 0;
+  }
+
+  input::placeholder { color: #55524e; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <circle cx="12" cy="16" r="1.2" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <h1>Password Generator</h1>
+    <p class="subtitle">Argon2id · v2</p>
+  </header>
+
+  <div class="card">
+    <div class="field">
+      <label for="site">Site / Service</label>
+      <input type="text" id="site" placeholder="e.g. Dashlane" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="master">
+        Master password
+        <button class="toggle-vis" id="toggleMaster" onclick="toggleField('master','toggleMaster')">
+          <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Show
+        </button>
+      </label>
+      <input type="password" id="master" placeholder="Your passphrase" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div class="field">
+        <label for="length">Characters</label>
+        <input type="number" id="length" value="64" min="16" max="128" placeholder="64">
+      </div>
+      <div class="field">
+        <label for="iterations">Iterations</label>
+        <input type="number" id="iterations" value="3" min="1" max="20" placeholder="3">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="memory">Memory (KB)</label>
+        <input type="number" id="memory" value="262144" min="65536" max="1048576" placeholder="262144">
+      </div>
+      <div class="field">
+        <label for="hashlen">Hash length</label>
+        <input type="number" id="hashlen" value="32" min="16" max="64" placeholder="32">
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generate()">Generate</button>
+
+    <div class="progress-wrap" id="progressWrap">
+      <p class="progress-label" id="progressLabel">Computing…</p>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill indeterminate" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <div class="output-card">
+    <div class="output-label">
+      Generated password
+      <button class="toggle-vis" id="toggleOutput" onclick="toggleOutput()">
+        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Show
+      </button>
+    </div>
+    <div class="output-value empty" id="outputValue">No password generated yet</div>
+    <div class="output-footer">
+      <div class="checksum-area">
+        Checksum: <span class="checksum-value" id="checksumValue">—</span>
+      </div>
+      <button class="copy-btn" id="copyBtn" onclick="copyPassword()">Copy</button>
+    </div>
+  </div>
+
+  <p class="params-hint">Memory: 256 MB · Parallelism: 1 · Algorithm: Argon2id</p>
+
+</div>
+
+<script>
+let generatedPassword = null;
+let outputVisible = false;
+
+function toggleField(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  btn.innerHTML = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${showing ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>' : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'}</svg> ${showing ? 'Show' : 'Hide'}`;
+}
+
+function toggleOutput() {
+  outputVisible = !outputVisible;
+  const btn = document.getElementById('toggleOutput');
+  const valEl = document.getElementById('outputValue');
+
+  if (!generatedPassword) return;
+
+  if (outputVisible) {
+    valEl.textContent = generatedPassword;
+    valEl.className = 'output-value';
+    btn.innerHTML = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Hide`;
+  } else {
+    valEl.textContent = '●'.repeat(Math.min(generatedPassword.length, 32));
+    valEl.className = 'output-value masked';
+    btn.innerHTML = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Show`;
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('visible');
+}
+
+function checksum(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(16).toUpperCase().padStart(8, '0');
+}
+
+async function generate() {
+  hideError();
+  const site = document.getElementById('site').value.trim();
+  const master = document.getElementById('master').value;
+  const length = parseInt(document.getElementById('length').value) || 64;
+  const iterations = parseInt(document.getElementById('iterations').value) || 3;
+  const memory = parseInt(document.getElementById('memory').value) || 262144;
+  const hashlen = parseInt(document.getElementById('hashlen').value) || 32;
+
+  if (!site) { showError('Please enter a site / service name.'); return; }
+  if (!master) { showError('Please enter your master password.'); return; }
+
+  const btn = document.getElementById('generateBtn');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressLabel = document.getElementById('progressLabel');
+
+  btn.disabled = true;
+  progressWrap.classList.add('visible');
+  progressLabel.textContent = 'Computing — this may take a few seconds…';
+
+  generatedPassword = null;
+  const outEl = document.getElementById('outputValue');
+  outEl.textContent = 'No password generated yet';
+  outEl.className = 'output-value empty';
+  document.getElementById('checksumValue').textContent = '—';
+  outputVisible = false;
+  document.getElementById('toggleOutput').innerHTML = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Show`;
+
+  try {
+    const result = await argon2.hash({
+      pass: master,
+      salt: site,
+      time: iterations,
+      mem: memory,
+      hashLen: hashlen,
+      parallelism: 1,
+      type: argon2.ArgonType.Argon2id
+    });
+
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}|;:,.<>?';
+    const bytes = result.hash;
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += charset[bytes[i % bytes.length] % charset.length];
+    }
+
+    generatedPassword = password;
+
+    outEl.textContent = '●'.repeat(Math.min(password.length, 32));
+    outEl.className = 'output-value masked';
+    document.getElementById('checksumValue').textContent = checksum(password);
+
+  } catch (e) {
+    showError('Error: ' + (e.message || String(e)));
+  } finally {
+    btn.disabled = false;
+    progressWrap.classList.remove('visible');
+  }
+}
+
+function copyPassword() {
+  if (!generatedPassword) return;
+  navigator.clipboard.writeText(generatedPassword).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate();
+});
+</script>
+</body>
+</html>
