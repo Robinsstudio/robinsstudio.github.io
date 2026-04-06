@@ -172,51 +172,6 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .generate-btn:active { transform: scale(0.985); }
 .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-.progress-wrap {
-  display: none;
-  margin-top: 1rem;
-}
-
-.progress-wrap.visible { display: block; }
-
-.progress-label {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-bottom: 0.4rem;
-  letter-spacing: 0.04em;
-}
-
-.progress-bar-bg {
-  height: 3px;
-  background: var(--surface2);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 99px;
-  width: 0%;
-  transition: width 0.3s;
-}
-
-@keyframes pulse-bar {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.progress-bar-fill.indeterminate {
-  width: 60%;
-  animation: indeterminate 1.4s ease-in-out infinite;
-  transform-origin: left;
-}
-
-@keyframes indeterminate {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(260%); }
-}
-
 .output-card {
   background: var(--surface);
   border: 1px solid var(--border);

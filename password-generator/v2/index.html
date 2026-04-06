@@ -24,7 +24,7 @@
   <div class="card">
     <div class="field">
       <label for="site">Site / Service</label>
-      <input type="text" id="site" placeholder="e.g. Dashlane" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+      <input type="text" id="site" placeholder="Your salt" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
     </div>
 
     <div class="divider"></div>
@@ -32,7 +32,7 @@
     <div class="field">
       <label for="master">
         Master password
-        <button class="toggle-vis" id="toggleMaster" onclick="toggleField('master','toggleMaster')">
+        <button class="toggle-vis" id="toggleMaster" onclick="toggleField('master','toggleMaster')" tabindex="-1">
           <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           Show
         </button>
@@ -44,17 +44,10 @@
 
     <div class="field">
       <label for="length">Characters</label>
-      <input type="number" id="length" value="64" min="16" max="128" placeholder="64">
+      <input type="number" id="length" value="30" min="15" max="30" placeholder="30">
     </div>
 
     <button class="generate-btn" id="generateBtn" onclick="generate()">Generate</button>
-
-    <div class="progress-wrap" id="progressWrap">
-      <p class="progress-label" id="progressLabel">Computing…</p>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill indeterminate" id="progressFill"></div>
-      </div>
-    </div>
 
     <div class="error-msg" id="errorMsg"></div>
   </div>
@@ -62,7 +55,7 @@
   <div class="output-card">
     <div class="output-label">
       Generated password
-      <button class="toggle-vis" id="toggleOutput" onclick="toggleOutput()">
+      <button class="toggle-vis" id="toggleOutput" onclick="toggleOutput()" tabindex="-1">
         <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         Show
       </button>
