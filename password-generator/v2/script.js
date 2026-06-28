@@ -101,34 +101,34 @@ async function generate() {
   try {
     const hashBytes = await new Promise((resolve, reject) => {
       worker.onmessage = (e) => {
-        if (e.data.error) {
-            reject(new Error(e.data.error));
-        } else {
-            resolve(new Uint8Array(e.data.hash));
-        }
-      };
+      if (e.data.error) {
+        reject(new Error(e.data.error));
+      } else {
+        resolve(new Uint8Array(e.data.hash));
+      }
+    };
 
-      worker.postMessage({
-        pass: master,
-        salt: Array.from(normalizeSalt(site)),
-        time: ARGON2_TIME,
-        mem:  ARGON2_MEMORY,
-        hashLen: ARGON2_HASHLEN,
-        parallelism: ARGON2_PARALLEL,
-        type: 2,
-      });
+    worker.postMessage({
+      pass: master,
+      salt: Array.from(normalizeSalt(site)),
+      time: ARGON2_TIME,
+      mem:  ARGON2_MEMORY,
+      hashLen: ARGON2_HASHLEN,
+      parallelism: ARGON2_PARALLEL,
+      type: 2,
     });
+  });
 
-    generatedPassword = hashBytes.toBase64({ alphabet: 'base64url', omitPadding: true }).slice(0, length);
+  generatedPassword = hashBytes.toBase64({ alphabet: 'base64url', omitPadding: true }).slice(0, length);
 
-    outEl.textContent = '●'.repeat(length);
-    outEl.className = 'output-value masked';
+  outEl.textContent = '●'.repeat(length);
+  outEl.className = 'output-value masked';
 
-    const { bg, fg, ch } = visualChecksum(hashBytes.slice(ARGON2_HASHLEN - 3, ARGON2_HASHLEN));
-    const badge = document.getElementById('checksumBadge');
-    badge.textContent = ch;
-    badge.style.background = bg;
-    badge.style.color = fg;
+  const { bg, fg, ch } = visualChecksum(hashBytes.slice(ARGON2_HASHLEN - 3, ARGON2_HASHLEN));
+  const badge = document.getElementById('checksumBadge');
+  badge.textContent = ch;
+  badge.style.background = bg;
+  badge.style.color = fg;
 
   } catch (e) {
     showError('Error: ' + (e.message || String(e)));
