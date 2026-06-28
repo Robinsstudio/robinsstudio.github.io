@@ -1,5 +1,5 @@
 const ARGON2_MEMORY   = 262144;
-const ARGON2_TIME     = 3;
+const ARGON2_TIME     = 10;
 const ARGON2_HASHLEN  = 32;
 const ARGON2_PARALLEL = 1;
 
@@ -18,6 +18,8 @@ const CHECKSUM_PALETTE = [
 
 // Unambiguous 64-char set (no 0/O, 1/l/I)
 const CHECKSUM_CHARS = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz!@#$%^&*(';
+
+const worker = new Worker('worker.js');
 
 let generatedPassword = null;
 
@@ -89,6 +91,7 @@ async function generate() {
   const btn = document.getElementById('generateBtn');
 
   btn.disabled = true;
+  btn.textContent = 'Generating…';
 
   generatedPassword = null;
   const outEl = document.getElementById('outputValue');
@@ -96,22 +99,32 @@ async function generate() {
   outEl.className = 'output-value empty';
 
   try {
-    const result = await argon2.hash({
-      pass: master,
-      salt: normalizeSalt(site),
-      time: ARGON2_TIME,
-      mem:  ARGON2_MEMORY,
-      hashLen: ARGON2_HASHLEN,
-      parallelism: ARGON2_PARALLEL,
-      type: argon2.ArgonType.Argon2id
+    const hashBytes = await new Promise((resolve, reject) => {
+      worker.onmessage = (e) => {
+        if (e.data.error) {
+            reject(new Error(e.data.error));
+        } else {
+            resolve(new Uint8Array(e.data.hash));
+        }
+      };
+
+      worker.postMessage({
+        pass: master,
+        salt: Array.from(normalizeSalt(site)),
+        time: ARGON2_TIME,
+        mem:  ARGON2_MEMORY,
+        hashLen: ARGON2_HASHLEN,
+        parallelism: ARGON2_PARALLEL,
+        type: 2,
+      });
     });
 
-    generatedPassword = result.hash.toBase64({ alphabet: 'base64url', omitPadding: true }).slice(0, length);
+    generatedPassword = hashBytes.toBase64({ alphabet: 'base64url', omitPadding: true }).slice(0, length);
 
     outEl.textContent = '●'.repeat(length);
     outEl.className = 'output-value masked';
 
-    const { bg, fg, ch } = visualChecksum(result.hash.slice(ARGON2_HASHLEN - 3, ARGON2_HASHLEN));
+    const { bg, fg, ch } = visualChecksum(hashBytes.slice(ARGON2_HASHLEN - 3, ARGON2_HASHLEN));
     const badge = document.getElementById('checksumBadge');
     badge.textContent = ch;
     badge.style.background = bg;
@@ -121,6 +134,7 @@ async function generate() {
     showError('Error: ' + (e.message || String(e)));
   } finally {
     btn.disabled = false;
+    btn.textContent = 'Generate';
   }
 }
 
