@@ -140,12 +140,27 @@ async function generate() {
 
 function copyPassword() {
   if (!generatedPassword) return;
-  navigator.clipboard.writeText(generatedPassword).then(() => {
+
+  const onCopied = () => {
     const btn = document.getElementById('copyBtn');
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-  });
+  };
+
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(generatedPassword).then(onCopied);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = generatedPassword;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    onCopied();
+  }
 }
 
 document.addEventListener('keydown', e => {
