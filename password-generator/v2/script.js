@@ -168,7 +168,9 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && generatedPassword) {
+  if (document.hidden) {
+    document.getElementById('master').value = '';
+
     generatedPassword = null;
     const outEl = document.getElementById('outputValue');
     outEl.textContent = 'No password generated yet';
