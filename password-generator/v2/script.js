@@ -21,6 +21,13 @@ const CHECKSUM_CHARS = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz!
 
 let generatedPassword = null;
 
+function normalizeSalt(site) {
+  const raw = new TextEncoder().encode(site.toLowerCase().trim());
+  const salt = new Uint8Array(Math.max(16, raw.length));
+  salt.set(raw);
+  return salt;
+}
+
 function toggleField(inputId, btnId) {
   const input = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
@@ -91,7 +98,7 @@ async function generate() {
   try {
     const result = await argon2.hash({
       pass: master,
-      salt: site,
+      salt: normalizeSalt(site),
       time: ARGON2_TIME,
       mem:  ARGON2_MEMORY,
       hashLen: ARGON2_HASHLEN,
@@ -99,7 +106,7 @@ async function generate() {
       type: argon2.ArgonType.Argon2id
     });
 
-    generatedPassword = result.hash.toBase64().slice(0, length);
+    generatedPassword = result.hash.toBase64({ alphabet: 'base64url', omitPadding: true }).slice(0, length);
 
     outEl.textContent = '●'.repeat(length);
     outEl.className = 'output-value masked';
@@ -129,4 +136,13 @@ function copyPassword() {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') generate();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && generatedPassword) {
+    generatedPassword = null;
+    const outEl = document.getElementById('outputValue');
+    outEl.textContent = 'No password generated yet';
+    outEl.className = 'output-value empty';
+  }
 });
